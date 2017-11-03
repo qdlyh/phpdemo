@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style type="text/css">
+	.msgBox {
+		border: 1px solid #000;
+	}
+
+	.listId {
+		display: none;
+	}
+
+	.delete-msg {
+		background-color: #D9534F;
+		-moz-border-radius: 28px;
+		-webkit-border-radius: 28px;
+		border-radius: 28px;
+		display: inline-block;
+		cursor: pointer;
+		color: #fff;
+		font-family: Arial;
+		font-size: 17px;
+		padding: 16px 31px;
+		text-decoration: none;
+		text-shadow: 0px 1px 0px #2f6627;
+		float: right;
+	}
+
+	.delete-msg:hover {
+		background-color: #f9534F;
+	}
+
+	.delete-msg:active {
+		position: relative;
+		top: 1px;
+	}
+</style>
+
+<body>
+	<form id="form" action="message.php" method="post" enctype="multipart/form-data">
+		<span>名字</span>
+		<input class="names" type="text" name="name"><br/>
+		<span>年龄</span>
+		<input class="ages" type="text" name="age"><br/>
+		<textarea class="textarea" rows="3" cols="20" name="message" placeholder="请输入你的留言"></textarea>
+		<br/>
+		<input type="submit" value="提交1">
+		<input type="button" id="submit" value="提交">
+	</form>
+	<hr/>
+	<div class="message">
+	</div>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript">
+		var formData = new FormData($("#form")[0]);
+		$.ajax({
+			url: 'message.php',
+			type: 'post',
+			dataType: 'json',
+			data: formData,
+			contentType: false,
+			processData: false,
+			success: function (data) {
+				//console.log(data)
+				var list = data;
+				//console.log(list)
+				var listBox = '';
+				for (let i = 0; i < list.length; i++) {
+					//console.log(list[i])
+					var listData = list[i];
+					//console.log(listData)
+					listBox +=
+						`
+                    <div class="msgBox">
+					   <p class="listId">${listData.id}</p>
+                       <p>名字:${listData.name}</p>
+                       <p>年龄:${listData.age}</p>
+                       <p>留言:${listData.message}</p>
+					   <a class="delete-msg">删除</a>
+                    </div>`
+				}
+				$('.message').html(listBox);
+			}
+		})
+		$('#submit').click(function () {
+			if ($('.names').val() == '' && $('.ages').val() == '' && $('.textarea').val() == '') {
+                alert('信息不能为空');
+				return false;
+			}
+			var formData = new FormData($("#form")[0]);
+			//console.log(formData)
+			$.ajax({
+				url: 'message.php',
+				type: 'post',
+				dataType: 'json',
+				data: formData,
+				contentType: false,
+				processData: false,
+				success: function (data) {
+					//console.log(data)
+					var list = data;
+					//console.log(list)
+					var listBox = '';
+					for (let i = 0; i < list.length; i++) {
+						//console.log(list[i])
+						var listData = list[i];
+						//console.log(listData)
+						listBox +=
+							`
+                    <div class="msgBox">
+						<p class="listId">${listData.id}</p>
+                       <p>名字:${listData.name}</p>
+                       <p>年龄:${listData.age}</p>
+                       <p>留言:${listData.message}</p>
+					   <a class="delete-msg">删除</a>
+                    </div>`
+					}
+					$('.message').html(listBox);
+				}
+			})
+		})
+
+		$(".message").on("click", '.delete-msg', function () {
+			var id = $(this).siblings('.listId').text();
+			//console.log(id);
+			$.ajax({
+				url: 'deletemsg.php',
+				type: 'post',
+				data: {
+					'ids': id
+				},
+				success: function (data) {
+					console.log(data)
+				}
+			})
+			$(this).parents('.msgBox').remove();
+			//console.log($(this).parents('.msgBox'))
+		});
+	</script>
+</body>
+
+</html>
